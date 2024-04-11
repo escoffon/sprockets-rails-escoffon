@@ -9,14 +9,17 @@ module Sprockets
       attr_accessor :app
 
       def initialize(app = nil)
+        print("++++++++++ Sprockets::Rails::Task.new - #{app}\n")
         self.app = app
         super()
       end
 
       def environment
         if app
+          print("++++++++++ Sprockets::Rails::Task.environment - app.assets: #{app.assets}\n")
           # Use initialized app.assets or force build an environment if
           # config.assets.compile is disabled
+          print("++++++++++ Sprockets::Rails::Task.environment returns #{app.assets || Sprockets::Railtie.build_environment(app)}\n")
           app.assets || Sprockets::Railtie.build_environment(app)
         else
           super
@@ -78,6 +81,10 @@ module Sprockets
                     print("  ++++++++ #{fn} File.stat failed\n")
                   end
                 end
+              end
+              print("++++++++++ assets:precompile contents of #{output}:\n")
+              Dir.entries(output).sort.each do |fn|
+                print("  ++++++++ #{fn}\n")
               end
               #++ END
             end
