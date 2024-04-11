@@ -64,13 +64,29 @@ module Sprockets
           desc "Compile all the assets named in config.assets.precompile"
           task :precompile => :environment do
             with_logger do
-              manifest.compile(assets)
+              #++ manifest.compile(assets)
+              #++ START
+              print("++++++++++ assets:precompile will run manifest.compile\n")
+              filenames = manifest.compile(assets)
+              print("++++++++++ assets:precompile did run manifest.compile, filenames:\n")
+              if filenames.is_a?(Array)
+                filenames.each do |fn|
+                  stat = File.stat(fn)
+                  if (stat.is_a?(File::Stat))
+                    print("  ++++++++ #{fn} ftype: #{stat.ftype}\n")
+                  else
+                    print("  ++++++++ #{fn} File.stat failed\n")
+                  end
+                end
+              end
+              #++ END
             end
           end
 
           desc "Remove old compiled assets"
           task :clean, [:keep] => :environment do |t, args|
             with_logger do
+              print("++++++++++ assets:clean will manifest.clean - #{Integer(args.keep || self.keep)}\n")
               manifest.clean(Integer(args.keep || self.keep))
             end
           end
@@ -78,6 +94,7 @@ module Sprockets
           desc "Remove compiled assets"
           task :clobber => :environment do
             with_logger do
+              print("++++++++++ assets:clobber will manifest.clobber\n")
               manifest.clobber
             end
           end
