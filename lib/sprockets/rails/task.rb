@@ -70,6 +70,14 @@ module Sprockets
               #++ manifest.compile(assets)
               #++ START
               print("\n++++++++++ assets:precompile will run manifest.compile (#{assets})\n")
+              if File.directory?('app/assets/builds')
+                print("++++++++++ assets:precompile files in app/assets/builds:\n")
+                Dir.entries('app/assets/builds').sort.each do |fn|
+                  print("  ++++++++ assets:precompile #{fn}\n")
+                end
+              else
+                print("++++++++++ assets:precompile app/assets/builds does not exist\n")
+              end
               filenames = manifest.compile(assets)
               print("\n++++++++++ assets:precompile did run manifest.compile, filenames:\n")
               if filenames.is_a?(Array)
