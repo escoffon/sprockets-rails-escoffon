@@ -9,17 +9,17 @@ module Sprockets
       attr_accessor :app
 
       def initialize(app = nil)
-        print("++++++++++ Sprockets::Rails::Task.new - #{app}\n")
+        #print("++++++++++ Sprockets::Rails::Task.new - #{app}\n")
         self.app = app
         super()
       end
 
       def environment
         if app
-          print("++++++++++ Sprockets::Rails::Task.environment - app.assets: #{app.assets}\n")
+          #print("++++++++++ Sprockets::Rails::Task.environment - app.assets: #{app.assets}\n")
           # Use initialized app.assets or force build an environment if
           # config.assets.compile is disabled
-          print("++++++++++ Sprockets::Rails::Task.environment returns #{app.assets || Sprockets::Railtie.build_environment(app)}\n")
+          #print("++++++++++ Sprockets::Rails::Task.environment returns #{app.assets || Sprockets::Railtie.build_environment(app)}\n")
           app.assets || Sprockets::Railtie.build_environment(app)
         else
           super
@@ -69,22 +69,34 @@ module Sprockets
             with_logger do
               #++ manifest.compile(assets)
               #++ START
-              print("++++++++++ assets:precompile will run manifest.compile\n")
+              print("\n++++++++++ assets:precompile will run manifest.compile (#{assets})\n")
               filenames = manifest.compile(assets)
-              print("++++++++++ assets:precompile did run manifest.compile, filenames:\n")
+              print("\n++++++++++ assets:precompile did run manifest.compile, filenames:\n")
               if filenames.is_a?(Array)
                 filenames.each do |fn|
                   stat = File.stat(fn)
                   if (stat.is_a?(File::Stat))
-                    print("  ++++++++ #{fn} ftype: #{stat.ftype}\n")
+                    print("  ++++++++ asset:precompile filename #{fn} ftype: #{stat.ftype}\n")
                   else
-                    print("  ++++++++ #{fn} File.stat failed\n")
+                    print("  ++++++++ asset:precompile filename #{fn} File.stat failed\n")
                   end
                 end
               end
-              print("++++++++++ assets:precompile contents of #{output}:\n")
+              print("\n++++++++++ assets:precompile contents of #{output}:\n")
+              manifest_file = nil
               Dir.entries(output).sort.each do |fn|
-                print("  ++++++++ #{fn}\n")
+                print("  ++++++++ assets:precompile contents #{fn}\n")
+                manifest_file = fn if fn =~ /^\.sprockets-manifest/
+              end
+              unless manifest_file.nil?
+                mj = nil
+                File.open(File.join(output, manifest_file)) do |f|
+                  mj = JSON.parse(f.read)
+                end
+                print("\n++++++++++ assets:precompile contents of manifest file:\n")
+                mj['files'].keys.sort.each do |fn|
+                  print("  ++++++++ assets:precompile manifest #{fn} - #{mj['files'][fn]['logical_path']}\n")
+                end
               end
               #++ END
             end
